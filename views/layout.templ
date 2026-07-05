@@ -1,0 +1,25 @@
+package views
+
+templ Layout(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ title } | What To Do</title>
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Kalam:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+			<link rel="stylesheet" href="/static/css/output.css"/>
+			<script>
+				if (localStorage.theme === 'light') {
+					document.documentElement.classList.remove('dark');
+				} else {
+					document.documentElement.classList.add('dark');
+				}
+			</script>
+		</head>
+		<body class="bg-slate-100 dark:bg-[#0B0E14] text-slate-800 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300">
+			{ children... }
+		</body>
+	</html>
+}

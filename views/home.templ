@@ -1,0 +1,46 @@
+package views
+
+templ Home() {
+	@Layout("Home") {
+		<div class="max-w-6xl mx-auto px-4 py-6">
+			@Header()
+			<div class="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 mt-6">
+				@ChatWindow()
+				@Notebook()
+			</div>
+		</div>
+	}
+}
+
+templ Header() {
+	<header class="flex items-center justify-between gap-4 flex-wrap">
+		<div class="flex items-center gap-3">
+			<span class="text-3xl">🗺️</span>
+			<div>
+				<h1 class="font-display font-bold text-2xl tracking-tight text-slate-800 dark:text-white">
+					What <span class="text-neon-pink dark:drop-shadow-[0_0_6px_#FF3EA5]">To</span> Do
+				</h1>
+				<p class="text-xs text-slate-500 dark:text-slate-400">your neon guide to Connecticut 🌲🎡🦞</p>
+			</div>
+		</div>
+		<div class="flex items-center gap-4">
+			<nav class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+				<a href="/about" class="hover:underline">About</a>
+				<a href="/contact" class="hover:underline">Contact</a>
+			</nav>
+			@ThemeToggle()
+		</div>
+	</header>
+}
+
+templ ThemeToggle() {
+	<button
+		id="theme-toggle"
+		class="relative w-16 h-8 rounded-full bg-slate-300 dark:bg-slate-800 border border-slate-400 dark:border-neon-cyan/50 flex items-center px-1 transition-colors cursor-pointer"
+		aria-label="Toggle light and dark mode"
+	>
+		<span id="theme-thumb" class="w-6 h-6 rounded-full bg-white dark:bg-neon-cyan dark:shadow-neonCyan flex items-center justify-center text-xs transition-transform duration-300">
+			🌙
+		</span>
+	</button>
+}

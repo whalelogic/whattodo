@@ -1,0 +1,19 @@
+package views
+
+templ Notebook() {
+	<aside class="rounded-2xl bg-[#FFFDF5] dark:bg-[#181C14] border border-slate-200 dark:border-neon-amber/30 shadow-sm p-4 h-[600px] flex flex-col relative overflow-hidden">
+		<div class="absolute left-6 top-0 bottom-0 w-px bg-red-300/50 dark:bg-red-500/20"></div>
+
+		<h2 class="font-hand text-2xl text-slate-700 dark:text-neon-amber mb-3 pl-4">📓 My Trip Notes</h2>
+
+		<div id="notebook-entries" class="flex-1 overflow-y-auto pl-4 space-y-3 font-hand text-lg leading-tight text-slate-700 dark:text-slate-200" style="background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(100,100,100,0.15) 32px); background-attachment: local;">
+			<p class="italic text-slate-400 dark:text-slate-500 text-base">Pin spots from the chat and they'll show up here 📌</p>
+		</div>
+
+		<canvas id="doodle-canvas" class="mt-3 w-full h-32 rounded-lg bg-white/60 dark:bg-black/20 border border-dashed border-slate-300 dark:border-slate-600 cursor-crosshair"></canvas>
+		<div class="flex justify-between items-center mt-1">
+			<span class="text-xs text-slate-400 dark:text-slate-500">✏️ doodle your route</span>
+			<button id="clear-doodle" class="text-xs text-neon-pink hover:underline cursor-pointer">clear</button>
+		</div>
+	</aside>
+}
