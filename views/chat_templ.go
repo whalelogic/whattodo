@@ -29,7 +29,7 @@ func ChatWindow() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"rounded-2xl bg-white dark:bg-[#131826] border border-slate-200 dark:border-neon-pink/20 shadow-sm dark:shadow-neonPink/10 flex flex-col h-[600px] overflow-hidden\"><div class=\"px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 bg-slate-50 dark:bg-[#0F1420]\"><span class=\"w-2.5 h-2.5 rounded-full bg-neon-cyan shadow-neonCyan animate-pulse\"></span> <span class=\"text-sm font-medium text-slate-600 dark:text-slate-300\">WhatToDo Bot is online</span></div><div id=\"messages\" class=\"flex-1 overflow-y-auto p-4 space-y-4\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"no-print rounded-2xl bg-white dark:bg-[#131826] border border-slate-200 dark:border-neon-pink/20 shadow-sm dark:shadow-neonPink/10 flex flex-col h-[600px] overflow-hidden\"><div class=\"px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 bg-slate-50 dark:bg-[#0F1420]\"><span class=\"w-2.5 h-2.5 rounded-full bg-neon-cyan shadow-neonCyan animate-pulse\"></span> <span class=\"text-sm font-medium text-slate-600 dark:text-slate-300\">WhatToDo Bot is online</span></div><div id=\"messages\" class=\"flex-1 overflow-y-auto p-4 space-y-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

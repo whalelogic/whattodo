@@ -26,7 +26,8 @@ function init() {
   }
 
   setupNotebookDropZone();
-  setupDoodle();
+  setupNotesToolbar();
+  loadNotes();
 }
 
 function appendUserMessage(text) {
@@ -238,19 +239,50 @@ function pinTextToNotebook(text) {
   notebook.appendChild(entry);
 }
 
+const NOTES_STORAGE_KEY = 'whattodo:trip-notes';
 const pinnedLocations = new Set();
+let notes = [];
 
 function locationKey(location) {
   return `${(location.name || '').toLowerCase()}|${(location.address || '').toLowerCase()}`;
 }
 
-function pinLocationToNotebook(location) {
+function saveNotes() {
+  try {
+    localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
+  } catch (err) {
+    console.error('Failed to save trip notes', err);
+  }
+}
+
+function loadNotes() {
   if (!notebook) return;
+  let stored = [];
+  try {
+    stored = JSON.parse(localStorage.getItem(NOTES_STORAGE_KEY) || '[]');
+  } catch (err) {
+    console.error('Failed to load trip notes', err);
+  }
+  if (!Array.isArray(stored)) return;
+  for (const location of stored) {
+    pinLocationToNotebook(location);
+  }
+}
+
+// Adds a location to the notebook (deduped) and persists it.
+function pinLocationToNotebook(location) {
+  if (!notebook || !location) return;
 
   const key = locationKey(location);
   if (pinnedLocations.has(key)) return;
   pinnedLocations.add(key);
+  notes.push(location);
+  saveNotes();
 
+  renderNoteEntry(location, key);
+}
+
+function renderNoteEntry(location, key) {
   const placeholder = notebook.querySelector('p.italic');
   if (placeholder) placeholder.remove();
 
@@ -281,10 +313,12 @@ function pinLocationToNotebook(location) {
   const remove = document.createElement('button');
   remove.type = 'button';
   remove.title = 'Remove from notes';
-  remove.className = 'absolute top-0 right-0 text-slate-400 hover:text-neon-pink opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer';
+  remove.className = 'no-print absolute top-0 right-0 text-slate-400 hover:text-neon-pink opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer';
   remove.textContent = '✕';
   remove.addEventListener('click', () => {
     pinnedLocations.delete(key);
+    notes = notes.filter((n) => locationKey(n) !== key);
+    saveNotes();
     entry.remove();
     if (!notebook.querySelector('div.group')) {
       notebook.appendChild(emptyNotebookPlaceholder());
@@ -293,6 +327,43 @@ function pinLocationToNotebook(location) {
   entry.appendChild(remove);
 
   notebook.appendChild(entry);
+}
+
+function setupNotesToolbar() {
+  const printBtn = document.getElementById('print-notes');
+  if (printBtn) {
+    printBtn.addEventListener('click', () => window.print());
+  }
+
+  const exportBtn = document.getElementById('export-notes');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', exportNotesToMarkdown);
+  }
+}
+
+function exportNotesToMarkdown() {
+  if (notes.length === 0) {
+    alert('Pin some spots to your Trip Notes first!');
+    return;
+  }
+
+  const lines = ['# My Trip Notes', ''];
+  for (const location of notes) {
+    lines.push(`## ${location.name || 'Location'}`);
+    if (location.address) lines.push(location.address);
+    if (location.maps_url) lines.push(`[Open in Google Maps](${location.maps_url})`);
+    lines.push('');
+  }
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'my-trip-notes.md';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
 function emptyNotebookPlaceholder() {
@@ -330,35 +401,6 @@ function setupNotebookDropZone() {
       console.error('Failed to parse dropped location', err);
     }
   });
-}
-
-// --- Doodle canvas ---
-function setupDoodle() {
-  const canvas = document.getElementById('doodle-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-
-  let drawing = false;
-  canvas.addEventListener('mousedown', () => (drawing = true));
-  canvas.addEventListener('mouseup', () => (drawing = false));
-  canvas.addEventListener('mouseleave', () => (drawing = false));
-  canvas.addEventListener('mousemove', (e) => {
-    if (!drawing) return;
-    const rect = canvas.getBoundingClientRect();
-    ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#FFD23F' : '#FF3EA5';
-    ctx.beginPath();
-    ctx.arc(e.clientX - rect.left, e.clientY - rect.top, 2, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  const clear = document.getElementById('clear-doodle');
-  if (clear) {
-    clear.addEventListener('click', () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    });
-  }
 }
 
 if (document.readyState === 'loading') {

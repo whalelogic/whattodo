@@ -42,7 +42,7 @@ func Layout(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " | What To Do</title><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link href=\"https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Kalam:wght@400;700&family=Inter:wght@400;500&display=swap\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"/static/css/output.css\"><script>\n\t\t\t\tif (localStorage.theme === 'light') {\n\t\t\t\t\tdocument.documentElement.classList.remove('dark');\n\t\t\t\t} else {\n\t\t\t\t\tdocument.documentElement.classList.add('dark');\n\t\t\t\t}\n\t\t\t</script></head><body class=\"bg-slate-100 dark:bg-[#0B0E14] text-slate-800 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " | What To Do</title><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link href=\"https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Kalam:wght@400;700&family=Inter:wght@400;500&display=swap\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"/static/css/output.css\"><link rel=\"stylesheet\" href=\"/static/css/print.css\" media=\"print\"><script>\n\t\t\t\tif (localStorage.theme === 'light') {\n\t\t\t\t\tdocument.documentElement.classList.remove('dark');\n\t\t\t\t} else {\n\t\t\t\t\tdocument.documentElement.classList.add('dark');\n\t\t\t\t}\n\t\t\t</script></head><body class=\"bg-slate-100 dark:bg-[#0B0E14] text-slate-800 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

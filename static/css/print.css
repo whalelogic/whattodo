@@ -1,0 +1,56 @@
+/* Print styles for "My Trip Notes".
+   Linked with media="print", so it only applies when printing / saving as PDF.
+   Hides the chat UI, header, doodle, and toolbar; expands the notes to full page. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Collapse the app layout so only the notes remain and flow naturally. */
+  #trip-notes {
+    position: static !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    padding: 0 !important;
+  }
+
+  #notebook-entries {
+    overflow: visible !important;
+    background-image: none !important;
+    padding-left: 0 !important;
+    color: #000 !important;
+    font-size: 12pt !important;
+  }
+
+  #trip-notes h2 {
+    color: #000 !important;
+    margin-bottom: 0.5rem;
+  }
+
+  #notebook-entries a {
+    color: #000 !important;
+    text-decoration: underline;
+  }
+
+  /* Print the Google Maps URL after the link text so it's usable on paper. */
+  #notebook-entries a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    word-break: break-all;
+  }
+
+  #notebook-entries > div {
+    break-inside: avoid;
+    padding-right: 0 !important;
+  }
+}
