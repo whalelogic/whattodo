@@ -96,7 +96,7 @@ func Header() templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<header class=\"flex items-center justify-between gap-4 flex-wrap\"><div class=\"flex items-center gap-3\"><span class=\"text-3xl\">🗺️</span><div><h1 class=\"font-display font-bold text-2xl tracking-tight text-slate-800 dark:text-white\">What <span class=\"text-neon-pink dark:drop-shadow-[0_0_6px_#FF3EA5]\">To</span> Do</h1><p class=\"text-xs text-slate-500 dark:text-slate-400\">your neon guide to Connecticut 🌲🎡🦞</p></div></div><div class=\"flex items-center gap-4\"><nav class=\"flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300\"><a href=\"/about\" class=\"hover:underline\">About</a> <a href=\"/contact\" class=\"hover:underline\">Contact</a></nav>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<header class=\"flex items-center justify-between gap-4 flex-wrap\"><div class=\"flex items-center gap-3\"><span class=\"text-3xl\">🗺️</span><div><h1 class=\"font-display font-bold text-2xl tracking-tight text-slate-800 dark:text-white\">What <span class=\"text-neon-pink dark:drop-shadow-[0_0_6px_#FF3EA5]\">To</span> Do ⁉️</h1><p class=\"text-xs text-slate-500 dark:text-slate-400\">Your Guide to Connecticut 🌲🎡🦞</p></div></div><div class=\"flex items-center gap-4\"><nav class=\"flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300\"><a href=\"/about\" class=\"hover:underline\">About</a> <a href=\"/contact\" class=\"hover:underline\">Contact</a></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

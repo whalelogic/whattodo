@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/whalelogic/whattodo/config"
-	"github.com/whalelogic/whattodo/router"
+	"github.com/whalelogic/whattodo/router"	
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 	}
 
 	fmt.Printf(
-		"\n<--- What to Do --->\nAddr: http://localhost:%v\nPages: /, /about, /contact\nAPI: /api/v1/chat/stream\nGemini Model: %s\nRead Timeout: %v\n",
+		"\n<--- What to Do --->\nAddr: http://localhost:%v\nPages: /, /about, /contact\nAPI: /api/v1/chat/stream\nGemini Model: %s\nRead Timeout: %v\n\n\n",
 		config.Port,
 		config.GeminiModel,
 		config.ReadTimeout,

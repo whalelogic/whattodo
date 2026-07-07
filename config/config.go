@@ -21,7 +21,7 @@ type Config struct {
 func DefaultConfig() *Config {
 	model := os.Getenv("GEMINI_MODEL")
 	if model == "" {
-		model = "gemini-1.5-flash"
+		model = "gemini-3.1-flash-lite"
 	}
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {

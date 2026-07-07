@@ -1,4 +1,3 @@
-./config/.env
-.env
 ./tailwindcss
 tailwindcss
+.env

@@ -1,22 +1,33 @@
-const form = document.getElementById('chat-form');
-const input = document.getElementById('message-input');
-const messages = document.getElementById('messages');
-const notebook = document.getElementById('notebook-entries');
+// Elements are resolved on init() because this script tag is emitted inside the
+// chat window, which renders *before* the notebook/doodle canvas in the DOM.
+let form, input, messages, notebook;
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const message = input.value.trim();
-  if (!message) return;
+function init() {
+  form = document.getElementById('chat-form');
+  input = document.getElementById('message-input');
+  messages = document.getElementById('messages');
+  notebook = document.getElementById('notebook-entries');
 
-  appendUserMessage(message);
-  input.value = '';
-  input.disabled = true;
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const message = input.value.trim();
+      if (!message) return;
 
-  const bot = appendBotMessageShell();
-  await streamBotReply(message, bot);
-  input.disabled = false;
-  input.focus();
-});
+      appendUserMessage(message);
+      input.value = '';
+      input.disabled = true;
+
+      const bot = appendBotMessageShell();
+      await streamBotReply(message, bot);
+      input.disabled = false;
+      input.focus();
+    });
+  }
+
+  setupNotebookDropZone();
+  setupDoodle();
+}
 
 function appendUserMessage(text) {
   const row = document.createElement('div');
@@ -157,11 +168,32 @@ function renderLocationCards(container, locations) {
 
   for (const location of locations) {
     const card = document.createElement('div');
-    card.className = 'rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F1420] p-3 text-sm';
+    card.className = 'rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F1420] p-3 text-sm cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md';
+    card.draggable = true;
+    card.addEventListener('dragstart', (e) => {
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('application/json', JSON.stringify(location));
+      e.dataTransfer.setData('text/plain', location.name || 'Location');
+      card.classList.add('opacity-50', 'ring-2', 'ring-neon-pink');
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('opacity-50', 'ring-2', 'ring-neon-pink');
+    });
+
+    const header = document.createElement('div');
+    header.className = 'flex items-start justify-between gap-2';
 
     const name = document.createElement('p');
     name.className = 'font-medium text-slate-800 dark:text-slate-100';
     name.textContent = location.name || 'Location';
+
+    const grip = document.createElement('span');
+    grip.className = 'text-slate-400 dark:text-slate-500 text-xs shrink-0 select-none';
+    grip.title = 'Drag me into My Trip Notes';
+    grip.textContent = '⠿';
+
+    header.appendChild(name);
+    header.appendChild(grip);
 
     const address = document.createElement('p');
     address.className = 'text-slate-600 dark:text-slate-300';
@@ -185,7 +217,7 @@ function renderLocationCards(container, locations) {
 
     actions.appendChild(maps);
     actions.appendChild(pin);
-    card.appendChild(name);
+    card.appendChild(header);
     if (address.textContent) {
       card.appendChild(address);
     }
@@ -196,7 +228,7 @@ function renderLocationCards(container, locations) {
 
 function pinTextToNotebook(text) {
   const trimmed = (text || '').trim();
-  if (!trimmed) return;
+  if (!trimmed || !notebook) return;
 
   const placeholder = notebook.querySelector('p.italic');
   if (placeholder) placeholder.remove();
@@ -206,12 +238,24 @@ function pinTextToNotebook(text) {
   notebook.appendChild(entry);
 }
 
+const pinnedLocations = new Set();
+
+function locationKey(location) {
+  return `${(location.name || '').toLowerCase()}|${(location.address || '').toLowerCase()}`;
+}
+
 function pinLocationToNotebook(location) {
+  if (!notebook) return;
+
+  const key = locationKey(location);
+  if (pinnedLocations.has(key)) return;
+  pinnedLocations.add(key);
+
   const placeholder = notebook.querySelector('p.italic');
   if (placeholder) placeholder.remove();
 
   const entry = document.createElement('div');
-  entry.className = 'space-y-1';
+  entry.className = 'group relative space-y-1 pr-6';
 
   const title = document.createElement('p');
   title.textContent = `• ${location.name || 'Location'}`;
@@ -219,8 +263,8 @@ function pinLocationToNotebook(location) {
 
   if (location.address) {
     const address = document.createElement('p');
-    address.className = 'text-base';
-    address.textContent = `  ${location.address}`;
+    address.className = 'text-base pl-4';
+    address.textContent = location.address;
     entry.appendChild(address);
   }
 
@@ -229,33 +273,96 @@ function pinLocationToNotebook(location) {
     link.href = location.maps_url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
-    link.className = 'text-neon-pink hover:underline text-base';
-    link.textContent = '  Open in Google Maps';
+    link.className = 'text-neon-pink hover:underline text-base pl-4 inline-block';
+    link.textContent = '📍 Open in Google Maps';
     entry.appendChild(link);
   }
+
+  const remove = document.createElement('button');
+  remove.type = 'button';
+  remove.title = 'Remove from notes';
+  remove.className = 'absolute top-0 right-0 text-slate-400 hover:text-neon-pink opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer';
+  remove.textContent = '✕';
+  remove.addEventListener('click', () => {
+    pinnedLocations.delete(key);
+    entry.remove();
+    if (!notebook.querySelector('div.group')) {
+      notebook.appendChild(emptyNotebookPlaceholder());
+    }
+  });
+  entry.appendChild(remove);
 
   notebook.appendChild(entry);
 }
 
+function emptyNotebookPlaceholder() {
+  const p = document.createElement('p');
+  p.className = 'italic text-slate-400 dark:text-slate-500 text-base';
+  p.textContent = "Pin spots from the chat and they'll show up here 📌";
+  return p;
+}
+
+// --- Drag & drop from chat cards into the notebook ---
+function setupNotebookDropZone() {
+  if (!notebook) return;
+
+  const highlight = () =>
+    notebook.classList.add('ring-2', 'ring-neon-pink', 'ring-inset', 'rounded-lg');
+  const unhighlight = () =>
+    notebook.classList.remove('ring-2', 'ring-neon-pink', 'ring-inset', 'rounded-lg');
+
+  notebook.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    highlight();
+  });
+  notebook.addEventListener('dragleave', (e) => {
+    if (!notebook.contains(e.relatedTarget)) unhighlight();
+  });
+  notebook.addEventListener('drop', (e) => {
+    e.preventDefault();
+    unhighlight();
+    const raw = e.dataTransfer.getData('application/json');
+    if (!raw) return;
+    try {
+      pinLocationToNotebook(JSON.parse(raw));
+    } catch (err) {
+      console.error('Failed to parse dropped location', err);
+    }
+  });
+}
+
 // --- Doodle canvas ---
-const canvas = document.getElementById('doodle-canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = canvas.offsetWidth;
-canvas.height = canvas.offsetHeight;
+function setupDoodle() {
+  const canvas = document.getElementById('doodle-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
 
-let drawing = false;
-canvas.addEventListener('mousedown', () => (drawing = true));
-canvas.addEventListener('mouseup', () => (drawing = false));
-canvas.addEventListener('mouseleave', () => (drawing = false));
-canvas.addEventListener('mousemove', (e) => {
-  if (!drawing) return;
-  const rect = canvas.getBoundingClientRect();
-  ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#FFD23F' : '#FF3EA5';
-  ctx.beginPath();
-  ctx.arc(e.clientX - rect.left, e.clientY - rect.top, 2, 0, Math.PI * 2);
-  ctx.fill();
-});
+  let drawing = false;
+  canvas.addEventListener('mousedown', () => (drawing = true));
+  canvas.addEventListener('mouseup', () => (drawing = false));
+  canvas.addEventListener('mouseleave', () => (drawing = false));
+  canvas.addEventListener('mousemove', (e) => {
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#FFD23F' : '#FF3EA5';
+    ctx.beginPath();
+    ctx.arc(e.clientX - rect.left, e.clientY - rect.top, 2, 0, Math.PI * 2);
+    ctx.fill();
+  });
 
-document.getElementById('clear-doodle').addEventListener('click', () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-});
+  const clear = document.getElementById('clear-doodle');
+  if (clear) {
+    clear.addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
